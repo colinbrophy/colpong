@@ -81,7 +81,7 @@ sf::Drawable& Score::getDrawable() {
 
 const sf::Vector2f BALL_VELOCITY(-0.001 * WINDOW_SIZE[0], 0.001*WINDOW_SIZE[1]);
 
-class Ball : public Object, private sf::CircleShape {
+class Ball : public Object {
 public:
 	Ball(Score& score);
 	void testCollision(Player& bat);
@@ -89,14 +89,15 @@ public:
 	sf::Drawable& getDrawable();
 private:
 	Score& score;
+	sf::CircleShape circle;
 };
 
 void Ball::update() {
 	Object::update();
-	bool hitplayer1edge = getPosition().x - getRadius() <= 0;
-	bool hitplayer2edge = getPosition().x + getRadius() >= WINDOW_SIZE[0];
-	bool hittop = getPosition().y - getRadius() <= 0;
-	bool hitbottom = getPosition().y + getRadius() >= WINDOW_SIZE[1];
+	bool hitplayer1edge = circle.getPosition().x - circle.getRadius() <= 0;
+	bool hitplayer2edge = circle.getPosition().x + circle.getRadius() >= WINDOW_SIZE[0];
+	bool hittop = circle.getPosition().y - circle.getRadius() <= 0;
+	bool hitbottom = circle.getPosition().y + circle.getRadius() >= WINDOW_SIZE[1];
 	if (hitplayer1edge) {
 		velocity.x = -velocity.x;
 		score.p1Score();
@@ -109,21 +110,21 @@ void Ball::update() {
 		velocity.y = -velocity.y;
 }
 void Ball::testCollision(Player& bat) {
-	bool testx = getPosition().x - getRadius() <= bat.getPosition().x + bat.getSize().x &&
-			 getPosition().x + getRadius() >= bat.getPosition().x;
-	bool testy = getPosition().y - getRadius() <= bat.getPosition().y + bat.getSize().y &&
-			 getPosition().y + getRadius() >= bat.getPosition().y;
+	bool testx = circle.getPosition().x - circle.getRadius() <= bat.getPosition().x + bat.getSize().x &&
+			 circle.getPosition().x + circle.getRadius() >= bat.getPosition().x;
+	bool testy = circle.getPosition().y - circle.getRadius() <= bat.getPosition().y + bat.getSize().y &&
+			 circle.getPosition().y + circle.getRadius() >= bat.getPosition().y;
 	if (testx && testy)
 		velocity.x = -velocity.x; // Conservation of energy
 }
 
-Ball::Ball(Score& score) : Object(*this, BALL_VELOCITY), sf::CircleShape(WINDOW_SIZE[0]*0.02), score(score) {
-	setPosition(WINDOW_SIZE[0] /  2, WINDOW_SIZE[1] / 2);
-	setOrigin(sf::Vector2f(getRadius(), getRadius()));
+Ball::Ball(Score& score) : Object(circle, BALL_VELOCITY), score(score), circle(WINDOW_SIZE[0]*0.02){
+	circle.setPosition(WINDOW_SIZE[0] /  2, WINDOW_SIZE[1] / 2);
+	circle.setOrigin(sf::Vector2f(circle.getRadius(), circle.getRadius()));
 }
 
 sf::Drawable& Ball::getDrawable() {
-	return *this;
+	return circle;
 }
 
 int main() {
